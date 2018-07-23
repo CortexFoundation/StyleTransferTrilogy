@@ -109,7 +109,7 @@ content_loss = F.mse_loss(features[2], content_features[2]) * content_weight
 * ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
 * ![equation](https://latex.codecogs.com/svg.latex?y)是风格图像
 * ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸。
-* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)$)指的是 x 图像的第 j 层特征图对应的 Gram 矩阵，比如 64 个卷积核对应的卷积层输出的特征图的 Gram 矩阵的尺寸是 $(64, 64)$。
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)$)指的是 x 图像的第 j 层特征图对应的 Gram 矩阵，比如 64 个卷积核对应的卷积层输出的特征图的 Gram 矩阵的尺寸是 ![equation](https://latex.codecogs.com/svg.latex?$(64,64)$)。
 * ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)_{c,c'}$) 指的是 Gram 矩阵第 ![equation](https://latex.codecogs.com/svg.latex?$(c,c')$) 坐标对应的值。
 * ![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)$)指的是 x 图像输入到 VGG 以后的第 j 层的特征图，![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)_{h,w,c}$) 指的是特征图 ![equation](https://latex.codecogs.com/svg.latex?$(h,w,c)$)坐标对应的值。
 
@@ -359,7 +359,7 @@ tensor_normalizer = transforms.Normalize(mean=cnn_normalization_mean, std=cnn_no
 
 ### TotalVariation
 
-> Total Variation Regularization. To encourage spatial smoothness in the output image $\hat{y}$, we follow prior work on feature inversion [6,20] and super- resolution [48,49] and make use of total variation regularizer $\ell_{TV}(\hat{y})$.
+> Total Variation Regularization. To encourage spatial smoothness in the output image ![equation](https://latex.codecogs.com/svg.latex?\hat{y}), we follow prior work on feature inversion [6,20] and super- resolution [48,49] and make use of total variation regularizer ![equation](https://latex.codecogs.com/svg.latex?$\ell_{TV}(\hat{y})$).
 
 论文中提到了一个 TV Loss，这是为了平滑图像。它的计算方法很简单：
 
@@ -441,7 +441,7 @@ for batch, (content_images, _) in pbar:
 * ![equation](https://latex.codecogs.com/svg.latex?$I_c$) 是内容图像
 * ![equation](https://latex.codecogs.com/svg.latex?$I$) 是输入图像
 
-那么通过对输入图像 $I$ 进行训练，我们能够得到固定风格、固定内容的风格迁移图像。
+那么通过对输入图像 ![equation](https://latex.codecogs.com/svg.latex?$I$) 进行训练，我们能够得到固定风格、固定内容的风格迁移图像。
 
 ## 情况2
 
@@ -585,7 +585,7 @@ defaultdict(int,
 
 > The dimension of hidden vector is 1792 without specification. The hidden features are connected with the filters of each conv layer of the network in a group manner to decrease the parameter size, which means a 128 dimensional hidden vector for each conv layer.
 
-意思就是隐藏层全连接层使用$14*128=1792$个神经元，这个14对应的就是 TransformNet 里面的每一层卷积层（downsampling2层，residual10层，upsampling2层），然后每一层卷积层的权值只连接其中的一小片128，那么整体结构参考下图：
+意思就是隐藏层全连接层使用14*128=1792个神经元，这个14对应的就是 TransformNet 里面的每一层卷积层（downsampling2层，residual10层，upsampling2层），然后每一层卷积层的权值只连接其中的一小片128，那么整体结构参考下图：
 
 ![](imgs/metanet.png)
 
