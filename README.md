@@ -139,7 +139,7 @@ def gram_matrix(y):
 
 ### 风格损失
 
-根据生成图像和风格图像在 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 输出的特征图的 Gram 矩阵之间的均方误差（MeanSquaredError）来优化生成的图像与风格图像之间的风格差异：
+根据生成图像和风格图像在 relu1_2、relu2_2、relu3_3、relu4_3 输出的特征图的 Gram 矩阵之间的均方误差（MeanSquaredError）来优化生成的图像与风格图像之间的风格差异：
 
 ![equation](https://latex.codecogs.com/svg.latex?$$\Large\ell^{\phi,j}_{style}(\hat{y},y)=||G^\phi_j(\hat{y})-G^\phi_j(y)||^2_F$$)
 
@@ -347,7 +347,7 @@ tensor_normalizer = transforms.Normalize(mean=cnn_normalization_mean, std=cnn_no
 
 优化器使用了论文中提到的 Adam 1e-3。
 
-> The output images are regularized with total variation regularization with a strength of between $1\times10^{-6}$ and $1\times10^{-4}$, chosen via cross-validation per style target.
+> The output images are regularized with total variation regularization with a strength of between ![equation](https://latex.codecogs.com/svg.latex?$1\times10^{-6}$) and ![equation](https://latex.codecogs.com/svg.latex?$1\times10^{-4}$), chosen via cross-validation per style target.
 
 `tv_weight` 感觉没有太大变化，所以按论文中给出的参考设置了 1e-6。
 
@@ -577,15 +577,15 @@ defaultdict(int,
 
 那么我们怎么样才能获得 TransformNet 的权值呢？当然是输入风格图像的特征。
 
-那么我们知道风格图像经过 VGG16 输出的 relu1_2、relu2_2、relu3_3、relu4_3 尺寸是很大的，假设图像的尺寸是 `(256, 256)`，那么卷积层输出的尺寸分别是 `(64, 256, 256)、(128, 128, 128)、(256, 64, 64)、(512, 32, 32)`，即使取其 Gram 矩阵，`(64, 64)、(128, 128)、(256, 256)、(512, 512)` 也是非常大的。我们举个例子，假设使用 `512*512` 个特征来生成 147584 个权值（residual 层），那么这层全连接层的 w 就是 512*512*147584=38688260096 个，假设 w 的格式是 float32，那么光是一个 w 就有 144GB 这么大，这几乎是不可实现的。那么第三篇论文就提到了一个方法，只计算每一个卷积核输出的内容的均值和标准差。
+那么我们知道风格图像经过 VGG16 输出的 relu1_2、relu2_2、relu3_3、relu4_3 尺寸是很大的，假设图像的尺寸是 `(256, 256)`，那么卷积层输出的尺寸分别是 `(64, 256, 256)、(128, 128, 128)、(256, 64, 64)、(512, 32, 32)`，即使取其 Gram 矩阵，`(64, 64)、(128, 128)、(256, 256)、(512, 512)` 也是非常大的。我们举个例子，假设使用 `512*512` 个特征来生成 147584 个权值（residual 层），那么这层全连接层的 w 就是 512x512x147584=38688260096 个，假设 w 的格式是 float32，那么光是一个 w 就有 144GB 这么大，这几乎是不可实现的。那么第三篇论文就提到了一个方法，只计算每一个卷积核输出的内容的均值和标准差。
 
 > We compute the mean and stand deviations of two feature maps of the style image and the transferred image as style features.
 
-只计算均值和标准差，不计算 Gram 矩阵，这里的特征就变为了 (64+128+256+512)*2=1920 维，明显小了很多。但是我们稍加计算即可知道，1920*(18496+73856+147584*10+73792+18464)=3188060160，假设是 float32，那么权值至少有 11.8GB，显然无法在一块 1080ti 上实现 MetaNet。那么作者又提出了一个想法，使用分组全连接层。
+只计算均值和标准差，不计算 Gram 矩阵，这里的特征就变为了 (64+128+256+512)x2=1920 维，明显小了很多。但是我们稍加计算即可知道，1920x(18496+73856+147584x10+73792+18464)=3188060160，假设是 float32，那么权值至少有 11.8GB，显然无法在一块 1080ti 上实现 MetaNet。那么作者又提出了一个想法，使用分组全连接层。
 
 > The dimension of hidden vector is 1792 without specification. The hidden features are connected with the filters of each conv layer of the network in a group manner to decrease the parameter size, which means a 128 dimensional hidden vector for each conv layer.
 
-意思就是隐藏层全连接层使用14*128=1792个神经元，这个14对应的就是 TransformNet 里面的每一层卷积层（downsampling2层，residual10层，upsampling2层），然后每一层卷积层的权值只连接其中的一小片128，那么整体结构参考下图：
+意思就是隐藏层全连接层使用14x128=1792个神经元，这个14对应的就是 TransformNet 里面的每一层卷积层（downsampling2层，residual10层，upsampling2层），然后每一层卷积层的权值只连接其中的一小片128，那么整体结构参考下图：
 
 ![](imgs/metanet.png)
 
