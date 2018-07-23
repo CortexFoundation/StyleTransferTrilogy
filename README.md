@@ -102,16 +102,16 @@ content_loss = F.mse_loss(features[2], content_features[2]) * content_weight
 
 那么如何衡量输入图像与风格图像之间的内容差异呢？这里就需要提出一个新的公式，Gram 矩阵：
 
-$$\Large{G^\phi_j(x)_{c,c'}=\frac{1}{C_jH_jW_j} \sum_{h=1}^{H_j} \sum_{w=1}^{W_j} \phi_j(x)_{h,w,c}\phi_j(x)_{h,w,c'}}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large{G^\phi_j(x)_{c,c'}=\frac{1}{C_jH_jW_j}&space;\sum_{h=1}^{H_j}&space;\sum_{w=1}^{W_j}&space;\phi_j(x)_{h,w,c}\phi_j(x)_{h,w,c'}}$$)
 
 其中：
 
-* $\hat{y}$是输入图像（也就是生成的图像）
-* $y$是风格图像
-* $C_j\times H_j\times W_j$是第 j 层输出的特征图的尺寸。
-* $G^\phi_j(x)$指的是 x 图像的第 j 层特征图对应的 Gram 矩阵，比如 64 个卷积核对应的卷积层输出的特征图的 Gram 矩阵的尺寸是 $(64, 64)$。
-* $G^\phi_j(x)_{c,c'}$ 指的是 Gram 矩阵第 $(c, c')$ 坐标对应的值。
-* $\phi_j(x)$指的是 x 图像输入到 VGG 以后的第 j 层的特征图，$\phi_j(x)_{h,w,c}$ 指的是特征图 $(h,w,c)$坐标对应的值。
+* ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
+* ![equation](https://latex.codecogs.com/svg.latex?y)是风格图像
+* ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸。
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)$)指的是 x 图像的第 j 层特征图对应的 Gram 矩阵，比如 64 个卷积核对应的卷积层输出的特征图的 Gram 矩阵的尺寸是 $(64, 64)$。
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)_{c,c'}$) 指的是 Gram 矩阵第 ![equation](https://latex.codecogs.com/svg.latex?$(c,c')$) 坐标对应的值。
+* ![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)$)指的是 x 图像输入到 VGG 以后的第 j 层的特征图，![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)_{h,w,c}$) 指的是特征图 ![equation](https://latex.codecogs.com/svg.latex?$(h,w,c)$)坐标对应的值。
 
 Gram 矩阵的计算方法其实很简单，Gram 矩阵的 $(c, c')$ 坐标对应的值，就是特征图的第 $c$ 张和第 $c'$ 张图对应元素相乘，然后全部加起来并且除以 $C_j\times H_j\times W_j$ 的结果。根据公式我们可以很容易推断出 Gram 矩阵是对称矩阵。
 
