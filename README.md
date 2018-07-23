@@ -49,7 +49,7 @@ vgg16 = models.vgg16(pretrained=True)
 vgg16 = VGG(vgg16.features[:23]).to(device).eval()
 ```
 
-经过修改的 VGG16 可以输出 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 这几个特定层的特征图。下面这两句代码就是它的用法：
+经过修改的 VGG16 可以输出 ![equation](https://latex.codecogs.com/svg.latex?$\text{relu1\_2,relu2\_2,relu3\_3,relu4\_3}$) 这几个特定层的特征图。下面这两句代码就是它的用法：
 
 ```py
 features = vgg16(input_img)
@@ -85,7 +85,7 @@ content_features = vgg16(content_img)
 * ![equation](https://latex.codecogs.com/svg.latex?\phi_j(x))指的是 x 图像输入到 VGG 以后的第 j 层的特征图
 * ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸
 
-根据生成图像和内容图像在 $\text{relu3_3}$ 输出的特征图的均方误差（MeanSquaredError）来优化生成的图像与内容图像之间的内容一致性。
+根据生成图像和内容图像在 ![equation](https://latex.codecogs.com/svg.latex?$\text{relu3\_3}$) 输出的特征图的均方误差（MeanSquaredError）来优化生成的图像与内容图像之间的内容一致性。
 
 
 那么写成代码就是这样的：
@@ -113,7 +113,7 @@ content_loss = F.mse_loss(features[2], content_features[2]) * content_weight
 * ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)_{c,c'}$) 指的是 Gram 矩阵第 ![equation](https://latex.codecogs.com/svg.latex?$(c,c')$) 坐标对应的值。
 * ![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)$)指的是 x 图像输入到 VGG 以后的第 j 层的特征图，![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)_{h,w,c}$) 指的是特征图 ![equation](https://latex.codecogs.com/svg.latex?$(h,w,c)$)坐标对应的值。
 
-Gram 矩阵的计算方法其实很简单，Gram 矩阵的 $(c, c')$ 坐标对应的值，就是特征图的第 $c$ 张和第 $c'$ 张图对应元素相乘，然后全部加起来并且除以 $C_j\times H_j\times W_j$ 的结果。根据公式我们可以很容易推断出 Gram 矩阵是对称矩阵。
+Gram 矩阵的计算方法其实很简单，Gram 矩阵的 ![equation](https://latex.codecogs.com/svg.latex?$(c,c')$) 坐标对应的值，就是特征图的第 ![equation](https://latex.codecogs.com/svg.latex?$c$) 张和第 ![equation](https://latex.codecogs.com/svg.latex?$c'$) 张图对应元素相乘，然后全部加起来并且除以 ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j) 的结果。根据公式我们可以很容易推断出 Gram 矩阵是对称矩阵。
 
 具体到代码，我们可以写出下面的函数：
 
@@ -141,13 +141,13 @@ def gram_matrix(y):
 
 根据生成图像和风格图像在 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 输出的特征图的 Gram 矩阵之间的均方误差（MeanSquaredError）来优化生成的图像与风格图像之间的风格差异：
 
-$$\Large\ell^{\phi,j}_{style}(\hat{y},y)=||G^\phi_j(\hat{y})-G^\phi_j(y)||^2_F$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large\ell^{\phi,j}_{style}(\hat{y},y)=||G^\phi_j(\hat{y})-G^\phi_j(y)||^2_F$$)
 
 其中：
 
-* $\hat{y}$是输入图像（也就是生成的图像）
-* $y$是风格图像
-* $G^\phi_j(x)$指的是 x 图像的第 j 层特征图对应的 Gram 矩阵
+* ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
+* ![equation](https://latex.codecogs.com/svg.latex?$y$)是风格图像
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)$)指的是 x 图像的第 j 层特征图对应的 Gram 矩阵
 
 那么写成代码就是下面这样：
 
@@ -363,7 +363,7 @@ tensor_normalizer = transforms.Normalize(mean=cnn_normalization_mean, std=cnn_no
 
 论文中提到了一个 TV Loss，这是为了平滑图像。它的计算方法很简单：
 
-$$\Large{V_\text{aniso}(y)=\sum_{i,j}|y_{i+1,j}-y_{i,j}|+|y_{i,j+1}-y_{i,j}|}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large{V_\text{aniso}(y)=\sum_{i,j}|y_{i+1,j}-y_{i,j}|+|y_{i,j+1}-y_{i,j}|}$$)
 
 将图像水平和垂直平移一个像素，与原图相减，然后计算绝对值的和，就是 TotalVariation。
 
@@ -428,43 +428,40 @@ for batch, (content_images, _) in pbar:
 
 ## 情况1
 
-$$\large{\min_I\left(\lambda_c||\mathbf{CP}(I;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+
-\lambda_s||\mathbf{SP}(I;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\large{\min_I\left(\lambda_c||\mathbf{CP}(I;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+\lambda_s||\mathbf{SP}(I;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$)
 
 其中：
 
-* $\mathbf{CP}$ 是内容损失函数
-* $\mathbf{SP}$ 是风格损失函数
-* $\lambda_c$ 是内容权重
-* $\lambda_s$ 是风格权重
-* $w_f$ 是VGG16的固定权值
-* $I_s$ 是风格图像
-* $I_c$ 是内容图像
-* $I$ 是输入图像
+* ![equation](https://latex.codecogs.com/svg.latex?$\mathbf{CP}$) 是内容损失函数
+* ![equation](https://latex.codecogs.com/svg.latex?$\mathbf{SP}$) 是风格损失函数
+* ![equation](https://latex.codecogs.com/svg.latex?$\lambda_c$) 是内容权重
+* ![equation](https://latex.codecogs.com/svg.latex?$\lambda_s$) 是风格权重
+* ![equation](https://latex.codecogs.com/svg.latex?$w_f$) 是VGG16的固定权值
+* ![equation](https://latex.codecogs.com/svg.latex?$I_s$) 是风格图像
+* ![equation](https://latex.codecogs.com/svg.latex?$I_c$) 是内容图像
+* ![equation](https://latex.codecogs.com/svg.latex?$I$) 是输入图像
 
 那么通过对输入图像 $I$ 进行训练，我们能够得到固定风格、固定内容的风格迁移图像。
 
 ## 情况2
 
-$$\large{\min_w\sum_{I_c}\left(\lambda_c||\mathbf{CP}(I_w;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+
-\lambda_s||\mathbf{SP}(I_w;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\large{\min_w\sum_{I_c}\left(\lambda_c||\mathbf{CP}(I_w;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+\lambda_s||\mathbf{SP}(I_w;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$)
 
 其中：
 
-* $I_w$ 是生成图像，$I_w=\mathcal{N}(I_c;w)$，$\mathcal{N}$ 是图像转换网络
+* ![equation](https://latex.codecogs.com/svg.latex?$I_w$) 是生成图像，![equation](https://latex.codecogs.com/svg.latex?$I_w=\mathcal{N}(I_c;w)$，$\mathcal{N}$) 是图像转换网络
  
 通过对权值的优化，我们可以得到一个快速风格迁移模型，它能够对任何内容图像进行风格转换，输出同一种风格的风格迁移图像。
 
 ## 情况3
 
-$$\large{\min_\theta\sum_{I_c,I_s}\left(\lambda_c||\mathbf{CP}(I_{w_\theta};w_f)-\mathbf{CP}(I_c;w_f)||^2_2+
-\lambda_s||\mathbf{SP}(I_{w_\theta};w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\large{\min_\theta\sum_{I_c,I_s}\left(\lambda_c||\mathbf{CP}(I_{w_\theta};w_f)-\mathbf{CP}(I_c;w_f)||^2_2+\lambda_s||\mathbf{SP}(I_{w_\theta};w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$)
 
-* $\theta$ 是 $Meta\mathcal{N}$ 的权值
-* $w_\theta$ 是转换网络的权值，$w_\theta=Meta\mathcal{N}(I_s;\theta)$，所以我们可以说转换网络的权值是 MetaNet 通过风格图像生成的。
-* $I_{w_\theta}$ 是转换网络生成的图像，$I_{w_\theta}=\mathcal{N}(I_c;w_\theta)$
+* ![equation](https://latex.codecogs.com/svg.latex?$\theta$) 是 ![equation](https://latex.codecogs.com/svg.latex?$Meta\mathcal{N}$) 的权值
+* ![equation](https://latex.codecogs.com/svg.latex?$w_\theta$) 是转换网络的权值，![equation](https://latex.codecogs.com/svg.latex?$w_\theta=Meta\mathcal{N}(I_s;\theta)$)，所以我们可以说转换网络的权值是 MetaNet 通过风格图像生成的。
+* ![equation](https://latex.codecogs.com/svg.latex?$I_{w_\theta}$) 是转换网络生成的图像，![equation](https://latex.codecogs.com/svg.latex?$I_{w_\theta}=\mathcal{N}(I_c;w_\theta)$)
 
-总的来说就是风格图像输入 $Meta\mathcal{N}$ 得到转换网络 $\mathcal{N}$，转换网络可以将任意内容图像进行转换。通过输入大量风格图像和内容图像 $\sum_{I_c,I_s}$，可以训练出能够产出期望权值的 $Meta\mathcal{N}$。该模型可以输入任意风格图像，输出情况2中的迁移模型，进而实现任意风格任意内容的风格迁移。
+总的来说就是风格图像输入 ![equation](https://latex.codecogs.com/svg.latex?$Meta\mathcal{N}$) 得到转换网络 ![equation](https://latex.codecogs.com/svg.latex?$\mathcal{N}$)，转换网络可以将任意内容图像进行转换。通过输入大量风格图像和内容图像 ![equation](https://latex.codecogs.com/svg.latex?$\sum_{I_c,I_s}$)，可以训练出能够产出期望权值的 ![equation](https://latex.codecogs.com/svg.latex?$Meta\mathcal{N}$)。该模型可以输入任意风格图像，输出情况2中的迁移模型，进而实现任意风格任意内容的风格迁移。
 
 ## 转换网络（TransformNet）
 
