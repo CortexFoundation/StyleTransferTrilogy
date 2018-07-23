@@ -49,7 +49,7 @@ vgg16 = models.vgg16(pretrained=True)
 vgg16 = VGG(vgg16.features[:23]).to(device).eval()
 ```
 
-经过修改的 VGG16 可以输出 ![equation](https://latex.codecogs.com/svg.latex?$\text{relu1\_2,relu2\_2,relu3\_3,relu4\_3}$) 这几个特定层的特征图。下面这两句代码就是它的用法：
+经过修改的 VGG16 可以输出 relu1_2,relu2_2,relu3_3,relu4_3 这几个特定层的特征图。下面这两句代码就是它的用法：
 
 ```py
 features = vgg16(input_img)
@@ -81,7 +81,7 @@ content_features = vgg16(content_img)
 * ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
 * ![equation](https://latex.codecogs.com/svg.latex?y)是内容图像
 * ![equation](https://latex.codecogs.com/svg.latex?\phi) 代表 VGG16
-* ![equation](https://latex.codecogs.com/svg.latex?\j) 在这里是 $\text{relu3_3}$
+* ![equation](https://latex.codecogs.com/svg.latex?\j) 在这里是 relu3_3
 * ![equation](https://latex.codecogs.com/svg.latex?\phi_j(x))指的是 x 图像输入到 VGG 以后的第 j 层的特征图
 * ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸
 
@@ -577,11 +577,11 @@ defaultdict(int,
 
 那么我们怎么样才能获得 TransformNet 的权值呢？当然是输入风格图像的特征。
 
-那么我们知道风格图像经过 VGG16 输出的 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 尺寸是很大的，假设图像的尺寸是 `(256, 256)`，那么卷积层输出的尺寸分别是 `(64, 256, 256)、(128, 128, 128)、(256, 64, 64)、(512, 32, 32)`，即使取其 Gram 矩阵，`(64, 64)、(128, 128)、(256, 256)、(512, 512)` 也是非常大的。我们举个例子，假设使用 `512*512` 个特征来生成 147584 个权值（residual 层），那么这层全连接层的 w 就是 $512*512*147584=38688260096$ 个，假设 w 的格式是 float32，那么光是一个 w 就有 144GB 这么大，这几乎是不可实现的。那么第三篇论文就提到了一个方法，只计算每一个卷积核输出的内容的均值和标准差。
+那么我们知道风格图像经过 VGG16 输出的 relu1_2、relu2_2、relu3_3、relu4_3 尺寸是很大的，假设图像的尺寸是 `(256, 256)`，那么卷积层输出的尺寸分别是 `(64, 256, 256)、(128, 128, 128)、(256, 64, 64)、(512, 32, 32)`，即使取其 Gram 矩阵，`(64, 64)、(128, 128)、(256, 256)、(512, 512)` 也是非常大的。我们举个例子，假设使用 `512*512` 个特征来生成 147584 个权值（residual 层），那么这层全连接层的 w 就是 512*512*147584=38688260096 个，假设 w 的格式是 float32，那么光是一个 w 就有 144GB 这么大，这几乎是不可实现的。那么第三篇论文就提到了一个方法，只计算每一个卷积核输出的内容的均值和标准差。
 
 > We compute the mean and stand deviations of two feature maps of the style image and the transferred image as style features.
 
-只计算均值和标准差，不计算 Gram 矩阵，这里的特征就变为了 $(64+128+256+512)*2=1920$ 维，明显小了很多。但是我们稍加计算即可知道，$1920*(18496+73856+147584*10+73792+18464)=3188060160$，假设是 float32，那么权值至少有 11.8GB，显然无法在一块 1080ti 上实现 MetaNet。那么作者又提出了一个想法，使用分组全连接层。
+只计算均值和标准差，不计算 Gram 矩阵，这里的特征就变为了 (64+128+256+512)*2=1920 维，明显小了很多。但是我们稍加计算即可知道，1920*(18496+73856+147584*10+73792+18464)=3188060160，假设是 float32，那么权值至少有 11.8GB，显然无法在一块 1080ti 上实现 MetaNet。那么作者又提出了一个想法，使用分组全连接层。
 
 > The dimension of hidden vector is 1792 without specification. The hidden features are connected with the filters of each conv layer of the network in a group manner to decrease the parameter size, which means a 128 dimensional hidden vector for each conv layer.
 
