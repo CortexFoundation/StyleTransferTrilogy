@@ -73,16 +73,17 @@ content_features = vgg16(content_img)
 
 这里使用的损失函数是：
 
-$$\Large\ell^{\phi,j}_{feat}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\phi_j(\hat{y})-\phi_j(y)||^2_2$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large\ell^{\phi,j}_{feat}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\phi_j(\hat{y})-\phi_j(y)||^2_2$$)
+
 
 其中：
 
-* $\hat{y}$是输入图像（也就是生成的图像）
-* $y$是内容图像
-* $\phi$ 代表 VGG16
-* $j$ 在这里是 $\text{relu3_3}$
-* $\phi_j(x)$指的是 x 图像输入到 VGG 以后的第 j 层的特征图
-* $C_j\times H_j\times W_j$是第 j 层输出的特征图的尺寸
+* ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
+* ![equation](https://latex.codecogs.com/svg.latex?y)是内容图像
+* ![equation](https://latex.codecogs.com/svg.latex?\phi) 代表 VGG16
+* ![equation](https://latex.codecogs.com/svg.latex?\j) 在这里是 $\text{relu3_3}$
+* ![equation](https://latex.codecogs.com/svg.latex?\phi_j(x))指的是 x 图像输入到 VGG 以后的第 j 层的特征图
+* ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸
 
 根据生成图像和内容图像在 $\text{relu3_3}$ 输出的特征图的均方误差（MeanSquaredError）来优化生成的图像与内容图像之间的内容一致性。
 
