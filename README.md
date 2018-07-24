@@ -49,7 +49,7 @@ vgg16 = models.vgg16(pretrained=True)
 vgg16 = VGG(vgg16.features[:23]).to(device).eval()
 ```
 
-经过修改的 VGG16 可以输出 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 这几个特定层的特征图。下面这两句代码就是它的用法：
+经过修改的 VGG16 可以输出 relu1_2,relu2_2,relu3_3,relu4_3 这几个特定层的特征图。下面这两句代码就是它的用法：
 
 ```py
 features = vgg16(input_img)
@@ -73,18 +73,19 @@ content_features = vgg16(content_img)
 
 这里使用的损失函数是：
 
-$$\Large\ell^{\phi,j}_{feat}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\phi_j(\hat{y})-\phi_j(y)||^2_2$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large\ell^{\phi,j}_{feat}(\hat{y},y)=\frac{1}{C_jH_jW_j}||\phi_j(\hat{y})-\phi_j(y)||^2_2$$)
+
 
 其中：
 
-* $\hat{y}$是输入图像（也就是生成的图像）
-* $y$是内容图像
-* $\phi$ 代表 VGG16
-* $j$ 在这里是 $\text{relu3_3}$
-* $\phi_j(x)$指的是 x 图像输入到 VGG 以后的第 j 层的特征图
-* $C_j\times H_j\times W_j$是第 j 层输出的特征图的尺寸
+* ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
+* ![equation](https://latex.codecogs.com/svg.latex?y)是内容图像
+* ![equation](https://latex.codecogs.com/svg.latex?\phi) 代表 VGG16
+* ![equation](https://latex.codecogs.com/svg.latex?\j) 在这里是 relu3_3
+* ![equation](https://latex.codecogs.com/svg.latex?\phi_j(x))指的是 x 图像输入到 VGG 以后的第 j 层的特征图
+* ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸
 
-根据生成图像和内容图像在 $\text{relu3_3}$ 输出的特征图的均方误差（MeanSquaredError）来优化生成的图像与内容图像之间的内容一致性。
+根据生成图像和内容图像在 ![equation](https://latex.codecogs.com/svg.latex?$\text{relu3\_3}$) 输出的特征图的均方误差（MeanSquaredError）来优化生成的图像与内容图像之间的内容一致性。
 
 
 那么写成代码就是这样的：
@@ -101,18 +102,18 @@ content_loss = F.mse_loss(features[2], content_features[2]) * content_weight
 
 那么如何衡量输入图像与风格图像之间的内容差异呢？这里就需要提出一个新的公式，Gram 矩阵：
 
-$$\Large{G^\phi_j(x)_{c,c'}=\frac{1}{C_jH_jW_j} \sum_{h=1}^{H_j} \sum_{w=1}^{W_j} \phi_j(x)_{h,w,c}\phi_j(x)_{h,w,c'}}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large{G^\phi_j(x)_{c,c'}=\frac{1}{C_jH_jW_j}&space;\sum_{h=1}^{H_j}&space;\sum_{w=1}^{W_j}&space;\phi_j(x)_{h,w,c}\phi_j(x)_{h,w,c'}}$$)
 
 其中：
 
-* $\hat{y}$是输入图像（也就是生成的图像）
-* $y$是风格图像
-* $C_j\times H_j\times W_j$是第 j 层输出的特征图的尺寸。
-* $G^\phi_j(x)$指的是 x 图像的第 j 层特征图对应的 Gram 矩阵，比如 64 个卷积核对应的卷积层输出的特征图的 Gram 矩阵的尺寸是 $(64, 64)$。
-* $G^\phi_j(x)_{c,c'}$ 指的是 Gram 矩阵第 $(c, c')$ 坐标对应的值。
-* $\phi_j(x)$指的是 x 图像输入到 VGG 以后的第 j 层的特征图，$\phi_j(x)_{h,w,c}$ 指的是特征图 $(h,w,c)$坐标对应的值。
+* ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
+* ![equation](https://latex.codecogs.com/svg.latex?y)是风格图像
+* ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j)是第 j 层输出的特征图的尺寸。
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)$)指的是 x 图像的第 j 层特征图对应的 Gram 矩阵，比如 64 个卷积核对应的卷积层输出的特征图的 Gram 矩阵的尺寸是 ![equation](https://latex.codecogs.com/svg.latex?$(64,64)$)。
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)_{c,c'}$) 指的是 Gram 矩阵第 ![equation](https://latex.codecogs.com/svg.latex?$(c,c')$) 坐标对应的值。
+* ![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)$)指的是 x 图像输入到 VGG 以后的第 j 层的特征图，![equation](https://latex.codecogs.com/svg.latex?$\phi_j(x)_{h,w,c}$) 指的是特征图 ![equation](https://latex.codecogs.com/svg.latex?$(h,w,c)$)坐标对应的值。
 
-Gram 矩阵的计算方法其实很简单，Gram 矩阵的 $(c, c')$ 坐标对应的值，就是特征图的第 $c$ 张和第 $c'$ 张图对应元素相乘，然后全部加起来并且除以 $C_j\times H_j\times W_j$ 的结果。根据公式我们可以很容易推断出 Gram 矩阵是对称矩阵。
+Gram 矩阵的计算方法其实很简单，Gram 矩阵的 ![equation](https://latex.codecogs.com/svg.latex?$(c,c')$) 坐标对应的值，就是特征图的第 ![equation](https://latex.codecogs.com/svg.latex?$c$) 张和第 ![equation](https://latex.codecogs.com/svg.latex?$c'$) 张图对应元素相乘，然后全部加起来并且除以 ![equation](https://latex.codecogs.com/svg.latex?C_j\times&space;H_j\times&space;W_j) 的结果。根据公式我们可以很容易推断出 Gram 矩阵是对称矩阵。
 
 具体到代码，我们可以写出下面的函数：
 
@@ -138,15 +139,15 @@ def gram_matrix(y):
 
 ### 风格损失
 
-根据生成图像和风格图像在 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 输出的特征图的 Gram 矩阵之间的均方误差（MeanSquaredError）来优化生成的图像与风格图像之间的风格差异：
+根据生成图像和风格图像在 relu1_2、relu2_2、relu3_3、relu4_3 输出的特征图的 Gram 矩阵之间的均方误差（MeanSquaredError）来优化生成的图像与风格图像之间的风格差异：
 
-$$\Large\ell^{\phi,j}_{style}(\hat{y},y)=||G^\phi_j(\hat{y})-G^\phi_j(y)||^2_F$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large\ell^{\phi,j}_{style}(\hat{y},y)=||G^\phi_j(\hat{y})-G^\phi_j(y)||^2_F$$)
 
 其中：
 
-* $\hat{y}$是输入图像（也就是生成的图像）
-* $y$是风格图像
-* $G^\phi_j(x)$指的是 x 图像的第 j 层特征图对应的 Gram 矩阵
+* ![equation](https://latex.codecogs.com/svg.latex?\hat{y})是输入图像（也就是生成的图像）
+* ![equation](https://latex.codecogs.com/svg.latex?$y$)是风格图像
+* ![equation](https://latex.codecogs.com/svg.latex?$G^\phi_j(x)$)指的是 x 图像的第 j 层特征图对应的 Gram 矩阵
 
 那么写成代码就是下面这样：
 
@@ -346,7 +347,7 @@ tensor_normalizer = transforms.Normalize(mean=cnn_normalization_mean, std=cnn_no
 
 优化器使用了论文中提到的 Adam 1e-3。
 
-> The output images are regularized with total variation regularization with a strength of between $1\times10^{-6}$ and $1\times10^{-4}$, chosen via cross-validation per style target.
+> The output images are regularized with total variation regularization with a strength of between ![equation](https://latex.codecogs.com/svg.latex?$1\times10^{-6}$) and ![equation](https://latex.codecogs.com/svg.latex?$1\times10^{-4}$), chosen via cross-validation per style target.
 
 `tv_weight` 感觉没有太大变化，所以按论文中给出的参考设置了 1e-6。
 
@@ -358,11 +359,11 @@ tensor_normalizer = transforms.Normalize(mean=cnn_normalization_mean, std=cnn_no
 
 ### TotalVariation
 
-> Total Variation Regularization. To encourage spatial smoothness in the output image $\hat{y}$, we follow prior work on feature inversion [6,20] and super- resolution [48,49] and make use of total variation regularizer $\ell_{TV}(\hat{y})$.
+> Total Variation Regularization. To encourage spatial smoothness in the output image ![equation](https://latex.codecogs.com/svg.latex?\hat{y}), we follow prior work on feature inversion [6,20] and super- resolution [48,49] and make use of total variation regularizer ![equation](https://latex.codecogs.com/svg.latex?$\ell_{TV}(\hat{y})$).
 
 论文中提到了一个 TV Loss，这是为了平滑图像。它的计算方法很简单：
 
-$$\Large{V_\text{aniso}(y)=\sum_{i,j}|y_{i+1,j}-y_{i,j}|+|y_{i,j+1}-y_{i,j}|}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\Large{V_\text{aniso}(y)=\sum_{i,j}|y_{i+1,j}-y_{i,j}|+|y_{i,j+1}-y_{i,j}|}$$)
 
 将图像水平和垂直平移一个像素，与原图相减，然后计算绝对值的和，就是 TotalVariation。
 
@@ -427,43 +428,40 @@ for batch, (content_images, _) in pbar:
 
 ## 情况1
 
-$$\large{\min_I\left(\lambda_c||\mathbf{CP}(I;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+
-\lambda_s||\mathbf{SP}(I;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\large{\min_I\left(\lambda_c||\mathbf{CP}(I;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+\lambda_s||\mathbf{SP}(I;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$)
 
 其中：
 
-* $\mathbf{CP}$ 是内容损失函数
-* $\mathbf{SP}$ 是风格损失函数
-* $\lambda_c$ 是内容权重
-* $\lambda_s$ 是风格权重
-* $w_f$ 是VGG16的固定权值
-* $I_s$ 是风格图像
-* $I_c$ 是内容图像
-* $I$ 是输入图像
+* ![equation](https://latex.codecogs.com/svg.latex?$\mathbf{CP}$) 是内容损失函数
+* ![equation](https://latex.codecogs.com/svg.latex?$\mathbf{SP}$) 是风格损失函数
+* ![equation](https://latex.codecogs.com/svg.latex?$\lambda_c$) 是内容权重
+* ![equation](https://latex.codecogs.com/svg.latex?$\lambda_s$) 是风格权重
+* ![equation](https://latex.codecogs.com/svg.latex?$w_f$) 是VGG16的固定权值
+* ![equation](https://latex.codecogs.com/svg.latex?$I_s$) 是风格图像
+* ![equation](https://latex.codecogs.com/svg.latex?$I_c$) 是内容图像
+* ![equation](https://latex.codecogs.com/svg.latex?$I$) 是输入图像
 
-那么通过对输入图像 $I$ 进行训练，我们能够得到固定风格、固定内容的风格迁移图像。
+那么通过对输入图像 ![equation](https://latex.codecogs.com/svg.latex?$I$) 进行训练，我们能够得到固定风格、固定内容的风格迁移图像。
 
 ## 情况2
 
-$$\large{\min_w\sum_{I_c}\left(\lambda_c||\mathbf{CP}(I_w;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+
-\lambda_s||\mathbf{SP}(I_w;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\large{\min_w\sum_{I_c}\left(\lambda_c||\mathbf{CP}(I_w;w_f)-\mathbf{CP}(I_c;w_f)||^2_2+\lambda_s||\mathbf{SP}(I_w;w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$)
 
 其中：
 
-* $I_w$ 是生成图像，$I_w=\mathcal{N}(I_c;w)$，$\mathcal{N}$ 是图像转换网络
+* ![equation](https://latex.codecogs.com/svg.latex?$I_w$) 是生成图像，![equation](https://latex.codecogs.com/svg.latex?$I_w=\mathcal{N}(I_c;w)$，$\mathcal{N}$) 是图像转换网络
  
 通过对权值的优化，我们可以得到一个快速风格迁移模型，它能够对任何内容图像进行风格转换，输出同一种风格的风格迁移图像。
 
 ## 情况3
 
-$$\large{\min_\theta\sum_{I_c,I_s}\left(\lambda_c||\mathbf{CP}(I_{w_\theta};w_f)-\mathbf{CP}(I_c;w_f)||^2_2+
-\lambda_s||\mathbf{SP}(I_{w_\theta};w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$
+![equation](https://latex.codecogs.com/svg.latex?$$\large{\min_\theta\sum_{I_c,I_s}\left(\lambda_c||\mathbf{CP}(I_{w_\theta};w_f)-\mathbf{CP}(I_c;w_f)||^2_2+\lambda_s||\mathbf{SP}(I_{w_\theta};w_f)-\mathbf{SP}(I_s;w_f)||^2_2\right)}$$)
 
-* $\theta$ 是 $Meta\mathcal{N}$ 的权值
-* $w_\theta$ 是转换网络的权值，$w_\theta=Meta\mathcal{N}(I_s;\theta)$，所以我们可以说转换网络的权值是 MetaNet 通过风格图像生成的。
-* $I_{w_\theta}$ 是转换网络生成的图像，$I_{w_\theta}=\mathcal{N}(I_c;w_\theta)$
+* ![equation](https://latex.codecogs.com/svg.latex?$\theta$) 是 ![equation](https://latex.codecogs.com/svg.latex?$Meta\mathcal{N}$) 的权值
+* ![equation](https://latex.codecogs.com/svg.latex?$w_\theta$) 是转换网络的权值，![equation](https://latex.codecogs.com/svg.latex?$w_\theta=Meta\mathcal{N}(I_s;\theta)$)，所以我们可以说转换网络的权值是 MetaNet 通过风格图像生成的。
+* ![equation](https://latex.codecogs.com/svg.latex?$I_{w_\theta}$) 是转换网络生成的图像，![equation](https://latex.codecogs.com/svg.latex?$I_{w_\theta}=\mathcal{N}(I_c;w_\theta)$)
 
-总的来说就是风格图像输入 $Meta\mathcal{N}$ 得到转换网络 $\mathcal{N}$，转换网络可以将任意内容图像进行转换。通过输入大量风格图像和内容图像 $\sum_{I_c,I_s}$，可以训练出能够产出期望权值的 $Meta\mathcal{N}$。该模型可以输入任意风格图像，输出情况2中的迁移模型，进而实现任意风格任意内容的风格迁移。
+总的来说就是风格图像输入 ![equation](https://latex.codecogs.com/svg.latex?$Meta\mathcal{N}$) 得到转换网络 ![equation](https://latex.codecogs.com/svg.latex?$\mathcal{N}$)，转换网络可以将任意内容图像进行转换。通过输入大量风格图像和内容图像 ![equation](https://latex.codecogs.com/svg.latex?$\sum_{I_c,I_s}$)，可以训练出能够产出期望权值的 ![equation](https://latex.codecogs.com/svg.latex?$Meta\mathcal{N}$)。该模型可以输入任意风格图像，输出情况2中的迁移模型，进而实现任意风格任意内容的风格迁移。
 
 ## 转换网络（TransformNet）
 
@@ -579,15 +577,15 @@ defaultdict(int,
 
 那么我们怎么样才能获得 TransformNet 的权值呢？当然是输入风格图像的特征。
 
-那么我们知道风格图像经过 VGG16 输出的 $\text{relu1_2、relu2_2、relu3_3、relu4_3}$ 尺寸是很大的，假设图像的尺寸是 `(256, 256)`，那么卷积层输出的尺寸分别是 `(64, 256, 256)、(128, 128, 128)、(256, 64, 64)、(512, 32, 32)`，即使取其 Gram 矩阵，`(64, 64)、(128, 128)、(256, 256)、(512, 512)` 也是非常大的。我们举个例子，假设使用 `512*512` 个特征来生成 147584 个权值（residual 层），那么这层全连接层的 w 就是 $512*512*147584=38688260096$ 个，假设 w 的格式是 float32，那么光是一个 w 就有 144GB 这么大，这几乎是不可实现的。那么第三篇论文就提到了一个方法，只计算每一个卷积核输出的内容的均值和标准差。
+那么我们知道风格图像经过 VGG16 输出的 relu1_2、relu2_2、relu3_3、relu4_3 尺寸是很大的，假设图像的尺寸是 `(256, 256)`，那么卷积层输出的尺寸分别是 `(64, 256, 256)、(128, 128, 128)、(256, 64, 64)、(512, 32, 32)`，即使取其 Gram 矩阵，`(64, 64)、(128, 128)、(256, 256)、(512, 512)` 也是非常大的。我们举个例子，假设使用 `512*512` 个特征来生成 147584 个权值（residual 层），那么这层全连接层的 w 就是 512x512x147584=38688260096 个，假设 w 的格式是 float32，那么光是一个 w 就有 144GB 这么大，这几乎是不可实现的。那么第三篇论文就提到了一个方法，只计算每一个卷积核输出的内容的均值和标准差。
 
 > We compute the mean and stand deviations of two feature maps of the style image and the transferred image as style features.
 
-只计算均值和标准差，不计算 Gram 矩阵，这里的特征就变为了 $(64+128+256+512)*2=1920$ 维，明显小了很多。但是我们稍加计算即可知道，$1920*(18496+73856+147584*10+73792+18464)=3188060160$，假设是 float32，那么权值至少有 11.8GB，显然无法在一块 1080ti 上实现 MetaNet。那么作者又提出了一个想法，使用分组全连接层。
+只计算均值和标准差，不计算 Gram 矩阵，这里的特征就变为了 (64+128+256+512)x2=1920 维，明显小了很多。但是我们稍加计算即可知道，1920x(18496+73856+147584x10+73792+18464)=3188060160，假设是 float32，那么权值至少有 11.8GB，显然无法在一块 1080ti 上实现 MetaNet。那么作者又提出了一个想法，使用分组全连接层。
 
 > The dimension of hidden vector is 1792 without specification. The hidden features are connected with the filters of each conv layer of the network in a group manner to decrease the parameter size, which means a 128 dimensional hidden vector for each conv layer.
 
-意思就是隐藏层全连接层使用$14*128=1792$个神经元，这个14对应的就是 TransformNet 里面的每一层卷积层（downsampling2层，residual10层，upsampling2层），然后每一层卷积层的权值只连接其中的一小片128，那么整体结构参考下图：
+意思就是隐藏层全连接层使用14x128=1792个神经元，这个14对应的就是 TransformNet 里面的每一层卷积层（downsampling2层，residual10层，upsampling2层），然后每一层卷积层的权值只连接其中的一小片128，那么整体结构参考下图：
 
 ![](imgs/metanet.png)
 
