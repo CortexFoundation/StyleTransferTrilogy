@@ -1,0 +1,12 @@
+python demo3.py res/c2.jpg res/style1.jpg res/c2_1.jpg
+python demo3.py res/c2.jpg res/style2.jpg res/c2_2.jpg
+python demo3.py res/c2.jpg res/style3.jpg res/c2_3.jpg
+python demo3.py res/c2.jpg res/style5.jpg res/c2_5.jpg
+python demo3.py res/c3.jpg res/style1.jpg res/c3_1.jpg
+python demo3.py res/c3.jpg res/style2.jpg res/c3_2.jpg
+python demo3.py res/c3.jpg res/style3.jpg res/c3_3.jpg
+python demo3.py res/c3.jpg res/style5.jpg res/c3_5.jpg
+python demo3.py res/c4.jpg res/style1.jpg res/c4_1.jpg
+python demo3.py res/c4.jpg res/style2.jpg res/c4_2.jpg
+python demo3.py res/c4.jpg res/style3.jpg res/c4_3.jpg
+python demo3.py res/c4.jpg res/style5.jpg res/c4_5.jpg
